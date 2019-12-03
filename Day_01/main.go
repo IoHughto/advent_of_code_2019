@@ -19,12 +19,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fuelSum, err := getSumOfData(data)
+	simpleFuelSum, err := getSumOfData(data, getSimpleTotal)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Total fuel required: %d", fuelSum)
+	completeFuelSum, err := getSumOfData(data, getCompleteTotal)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Simple fuel required: %d\n", simpleFuelSum)
+	fmt.Printf("Complete fuel required: %d\n", completeFuelSum)
 }
 
 func parseData(bytes []byte) ([]int64, error) {
@@ -42,7 +48,7 @@ func parseData(bytes []byte) ([]int64, error) {
 	return data, nil
 }
 
-func getSumOfData(data []int64) (int64, error) {
+func getSumOfData(data []int64, fuelFunc func(module fuelModule.FuelModule) (int64, error)) (int64, error) {
 	var fuelSum int64
 	fuelSum = 0
 	for _, datum := range data {
@@ -50,7 +56,7 @@ func getSumOfData(data []int64) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		fuel, err := module.GetFuelNeeds()
+		fuel, err := fuelFunc(module)
 		if err != nil {
 			return 0, err
 		}
@@ -62,3 +68,11 @@ func getSumOfData(data []int64) (int64, error) {
 
 // Sentinel error
 var errInvalidSyntax = fmt.Errorf("int64 parse error")
+
+func getSimpleTotal(module fuelModule.FuelModule) (int64, error) {
+	return module.GetFuelNeeds()
+}
+
+func getCompleteTotal(module fuelModule.FuelModule) (int64, error) {
+	return module.GetCompleteFuelNeeds()
+}

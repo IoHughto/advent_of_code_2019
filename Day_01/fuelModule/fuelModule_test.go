@@ -28,6 +28,18 @@ func TestFuelModule_GetFuelNeeds(t *testing.T) {
 	}
 }
 
+func TestFuelModule_GetCompleteFuelNeeds(t *testing.T) {
+	fuelModuleTests := []fuelModuleTest{
+		{1, nil, 0},
+		{5, nil, 0},
+		{9, nil, 1},
+		{1000, nil, 483},
+	}
+	for _, test := range fuelModuleTests {
+		testGetCompleteFuelNeeds(t, test)
+	}
+}
+
 func TestNoMass(t *testing.T) {
 	newModule := FuelModule{}
 	_, err := newModule.GetFuelNeeds()
@@ -60,6 +72,21 @@ func testGetFuelNeeds(t *testing.T, test fuelModuleTest) {
 		return
 	}
 	fuel, err := newModule.GetFuelNeeds()
+	if !errors.Is(err, test.errType) {
+		t.Errorf("Unexpected error: expected (%s) got (%s)", test.errType, err)
+	}
+	if fuel != test.expected {
+		t.Errorf("Unexpected mass: expected (%d) got (%d)", test.expected, fuel)
+	}
+}
+
+func testGetCompleteFuelNeeds(t *testing.T, test fuelModuleTest) {
+	newModule, err := New(test.value)
+	if err != nil {
+		t.Errorf("Unexpected error in New: %s", err)
+		return
+	}
+	fuel, err := newModule.GetCompleteFuelNeeds()
 	if !errors.Is(err, test.errType) {
 		t.Errorf("Unexpected error: expected (%s) got (%s)", test.errType, err)
 	}

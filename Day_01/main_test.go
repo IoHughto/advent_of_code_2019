@@ -18,9 +18,20 @@ func TestParseData(t *testing.T) {
 func TestGetSumOfData(t *testing.T) {
 	sumTests := []sumTest{
 		{[]int64{1, 2, 3, 4}, 0, nil},
+		{[]int64{96, 18, 21, 22}, 44, nil},
 	}
 	for _, test := range sumTests {
 		testGetSumOfData(t, test)
+	}
+}
+
+func TestGetCompleteSumOfData(t *testing.T) {
+	sumTests := []sumTest{
+		{[]int64{1, 2, 3, 4}, 0, nil},
+		{[]int64{96, 18, 21, 22}, 52, nil},
+	}
+	for _, test := range sumTests {
+		testGetCompleteSumOfData(t, test)
 	}
 }
 
@@ -49,7 +60,17 @@ func testParseData(t *testing.T, test parseTest) {
 }
 
 func testGetSumOfData(t *testing.T, test sumTest) {
-	totalFuel, err := getSumOfData(test.input)
+	totalFuel, err := getSumOfData(test.input, getSimpleTotal)
+	if !errors.Is(err, test.errType) {
+		t.Errorf("Unexpected error: expected (%s) got (%s)", test.errType, err)
+	}
+	if totalFuel != test.expected {
+		t.Errorf("Unexpected result: expected (%d) got (%d)", test.expected, totalFuel)
+	}
+}
+
+func testGetCompleteSumOfData(t *testing.T, test sumTest) {
+	totalFuel, err := getSumOfData(test.input, getCompleteTotal)
 	if !errors.Is(err, test.errType) {
 		t.Errorf("Unexpected error: expected (%s) got (%s)", test.errType, err)
 	}
