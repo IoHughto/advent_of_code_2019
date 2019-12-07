@@ -18,7 +18,7 @@ const (
 )
 
 func (ic *IntCode) Load(data []int) {
-	ic.data = data
+	ic.data = append([]int{}, data...)
 }
 
 func (ic *IntCode) Replace(replaceData []ReplaceData) (IntCode, error) {

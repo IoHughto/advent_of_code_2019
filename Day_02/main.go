@@ -18,17 +18,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	newProgram := program.IntCode{}
-	newProgram.Load(data)
-	newProgram, err = newProgram.Replace([]program.ReplaceData{{1, 12}, {2, 2}})
+	noun, verb, err := findTargetInput(data, 19690720)
 	if err != nil {
 		log.Fatal(err)
 	}
-	result, err := newProgram.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Output: %d", result)
+	fmt.Printf("Noun: %d\nVerb: %d\n", noun, verb)
 }
 
 func getProgramData(rawData string) ([]int, error) {
@@ -49,5 +43,29 @@ func getProgramData(rawData string) ([]int, error) {
 	return data, nil
 }
 
+func findTargetInput(data []int, target int) (int, int, error) {
+	for i := 0; i < 100; i++ {
+		for j := 0; j < 100; j++ {
+			newProgram := program.IntCode{}
+			newProgram.Load(data)
+			replaceData := []program.ReplaceData{{1, i}, {2, j}}
+			newProgram, err := newProgram.Replace(replaceData)
+			if err != nil {
+				return 0, 0, fmt.Errorf("%w: %s", errReplaceError, err)
+			}
+			result, err := newProgram.Run()
+			if err != nil {
+				return 0, 0, err
+			}
+			if result == target {
+				return i, j, nil
+			}
+		}
+	}
+	return 0, 0, fmt.Errorf("%w: %d", errTargetNotFound, target)
+}
+
 // sentinel errors
 var errIntConversion = fmt.Errorf("cannot convert to string")
+var errReplaceError = fmt.Errorf("could not replace inputs")
+var errTargetNotFound = fmt.Errorf("target output not found")
